@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warm Roast Cafe - Interactive Ordering</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap');
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #fdfbf7;
+    }
+
+    .font-serif-title {
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* Custom scrollbar for cozy feel */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1ede4;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #d4b89b;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #b58d67;
+    }
+
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="text-stone-800 antialiased min-h-screen flex flex-col bg-[#FDFBF7]">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-amber-900/10 px-4 sm:px-8 py-3.5 shadow-sm">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-700 to-amber-900 text-amber-100 flex items-center justify-center shadow-md shadow-amber-900/20">
+          <i data-lucide="coffee" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold text-stone-900 tracking-tight flex items-center gap-2">
+            The Cozy Roast <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold border border-amber-200">POS</span>
+          </h1>
+          <p class="text-xs text-stone-500">Fast Table & Takeaway Counter</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions / Status badge -->
+      <div class="flex items-center gap-3">
+        <div class="hidden sm:flex items-center gap-2 text-xs bg-amber-50 text-amber-900 border border-amber-200/80 px-3 py-1.5 rounded-full font-medium">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Connected to Python Menu
+        </div>
+        <button id="mobileCartBtn" class="lg:hidden relative p-2.5 rounded-xl bg-amber-800 text-white shadow hover:bg-amber-900 transition-colors">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          <span id="mobileBadge" class="hidden absolute -top-1.5 -right-1.5 bg-rose-600 text-white text-[11px] font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center border-2 border-white">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- Left Column: Menu Items Showcase (8 Cols) -->
+      <section class="lg:col-span-7 xl:col-span-8 flex flex-col gap-5">
+        
+        <!-- Welcome banner -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-950 via-stone-900 to-amber-900 text-amber-50 p-6 sm:p-7 shadow-lg">
+          <div class="relative z-10 max-w-lg">
+            <span class="text-xs tracking-wider uppercase text-amber-300 font-semibold">Freshly Made Everyday</span>
+            <h2 class="text-2xl sm:text-3xl font-bold font-serif-title mt-1 mb-2">Welcome to our Cafe</h2>
+            <p class="text-sm text-stone-300 leading-relaxed">
+              Select items below to build your customer's order. You can easily order multiple items continuously.
+            </p>
+          </div>
+          <div class="absolute -right-6 -bottom-8 opacity-15 pointer-events-none">
+            <i data-lucide="cup-soda" class="w-48 h-48 text-amber-200"></i>
+          </div>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div class="relative w-full sm:w-72">
+            <i data-lucide="search" class="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input 
+              id="searchMenu" 
+              type="text" 
+              placeholder="Search cafe items..." 
+              class="w-full pl-9 pr-4 py-2 text-sm bg-white border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-700/30 focus:border-amber-700 transition shadow-sm"
+            >
+          </div>
+          
+          <div class="flex items-center gap-1.5 self-end sm:self-auto bg-stone-100 p-1 rounded-xl border border-stone-200">
+            <button class="px-3 py-1 text-xs font-semibold rounded-lg bg-white shadow-sm text-stone-800">All Items (6)</button>
+            <button onclick="filterType('food')" class="px-3 py-1 text-xs font-medium rounded-lg text-stone-500 hover:text-stone-900">Food</button>
+            <button onclick="filterType('beverage')" class="px-3 py-1 text-xs font-medium rounded-lg text-stone-500 hover:text-stone-900">Beverages</button>
+          </div>
+        </div>
+
+        <!-- Menu Grid -->
+        <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <!-- Dynamically populated via JavaScript -->
+        </div>
+
+        <!-- Python Developer Note / Concept helper -->
+        <div class="bg-amber-50/70 border border-amber-200/60 rounded-xl p-4 text-xs text-stone-600 flex items-start gap-3 mt-2">
+          <i data-lucide="code-2" class="w-5 h-5 text-amber-800 shrink-0 mt-0.5"></i>
+          <div>
+            <span class="font-bold text-stone-800">Python Connection:</span>
+            This UI is built directly from your Python dictionary:
+            <code class="bg-white px-1.5 py-0.5 rounded border border-amber-200 text-amber-900 font-mono text-[11px] ml-1">
+              {'Pizza': 160, 'Pasta': 100, 'Burger': 80, 'Salad': 85, 'Coffee': 55, 'Tea': 45}
+            </code>.
+            Clicking <span class="font-semibold text-stone-800">"Add to Order"</span> repeatedly accomplishes the exact same behavior as your <code class="font-mono bg-white px-1 rounded text-amber-900">while True</code> loop without needing to re-type full item names in a terminal prompt!
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Right Column: Interactive Order Cart (4-5 Cols) -->
+      <section class="lg:col-span-5 xl:col-span-4 sticky top-20">
+        <div class="bg-white rounded-2xl border border-stone-200/90 shadow-xl shadow-stone-200/50 flex flex-col overflow-hidden">
+          
+          <!-- Cart Header -->
+          <div class="p-4 sm:p-5 border-b border-stone-100 bg-stone-50/60 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="p-2 rounded-lg bg-amber-100/70 text-amber-900">
+                <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-stone-800 text-base">Current Order</h3>
+                <p id="itemCountLabel" class="text-xs text-stone-500">0 items selected</p>
+              </div>
+            </div>
+            <button 
+              id="clearCartBtn" 
+              onclick="clearOrder()" 
+              class="text-xs text-rose-600 hover:text-rose-700 font-medium px-2 py-1 rounded hover:bg-rose-50 transition"
+              title="Reset Order"
+            >
+              Clear
+            </button>
+          </div>
+
+          <!-- Customer Name Input -->
+          <div class="px-5 pt-4">
+            <label class="block text-[11px] font-semibold uppercase text-stone-400 mb-1">Customer / Table Name</label>
+            <input 
+              id="customerNameInput" 
+              type="text" 
+              placeholder="e.g. Table 4 or John Doe" 
+              value="Walk-in Guest"
+              class="w-full px-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-700 font-medium"
+            >
+          </div>
+
+          <!-- Items Container -->
+          <div id="cartItemsContainer" class="p-5 flex flex-col gap-3 min-h-[220px] max-h-[340px] overflow-y-auto">
+            <!-- Empty state will be shown here by default -->
+          </div>
+
+          <!-- Cart Bill Breakdown -->
+          <div class="p-5 bg-stone-50/80 border-t border-stone-100 flex flex-col gap-2.5 text-xs">
+            <div class="flex justify-between text-stone-600">
+              <span>Subtotal:</span>
+              <span id="subtotalDisplay" class="font-semibold text-stone-800">Rs 0</span>
+            </div>
+            <div class="flex justify-between text-stone-500">
+              <span>GST / Taxes (5%):</span>
+              <span id="taxDisplay" class="font-medium text-stone-700">Rs 0</span>
+            </div>
+            <div class="pt-2 border-t border-stone-200 flex justify-between items-baseline">
+              <span class="text-sm font-bold text-stone-900">Total Bill:</span>
+              <span id="totalBillDisplay" class="text-xl font-extrabold text-amber-900">Rs 0</span>
+            </div>
+
+            <!-- Action button -->
+            <button 
+              id="checkoutButton" 
+              onclick="openReceiptModal()" 
+              disabled 
+              class="w-full mt-3 py-3 rounded-xl bg-amber-800 hover:bg-amber-900 disabled:bg-stone-300 disabled:cursor-not-allowed text-white font-semibold text-sm shadow-md shadow-amber-900/10 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <i data-lucide="receipt" class="w-4 h-4"></i>
+              Proceed to Bill
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Receipt / Checkout Modal -->
+  <div id="receiptModal" class="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform transition-all border border-stone-200 animate-in fade-in zoom-in duration-200">
+      
+      <!-- Receipt Header Decorator -->
+      <div class="bg-amber-900 text-amber-50 p-5 text-center relative">
+        <button onclick="closeReceiptModal()" class="absolute right-4 top-4 text-amber-200 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        <div class="w-10 h-10 mx-auto rounded-full bg-amber-800 flex items-center justify-center mb-2">
+          <i data-lucide="check" class="w-5 h-5 text-emerald-400"></i>
+        </div>
+        <h4 class="font-serif-title font-bold text-lg">The Cozy Roast Cafe</h4>
+        <p class="text-[11px] text-amber-200 tracking-wider uppercase">Official Order Receipt</p>
+      </div>
+
+      <!-- Receipt Body -->
+      <div class="p-5 flex flex-col gap-3 font-mono text-xs">
+        <div class="flex justify-between text-stone-500 pb-2 border-b border-dashed border-stone-200">
+          <span id="receiptDate">Date: --</span>
+          <span id="receiptCustomer">Table: --</span>
+        </div>
+
+        <div id="receiptItemsList" class="flex flex-col gap-1.5 my-1 max-h-48 overflow-y-auto">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="border-t border-dashed border-stone-300 pt-2 space-y-1 text-stone-600">
+          <div class="flex justify-between">
+            <span>Subtotal:</span>
+            <span id="modalSubtotal">Rs 0</span>
+          </div>
+          <div class="flex justify-between">
+            <span>GST (5%):</span>
+            <span id="modalTax">Rs 0</span>
+          </div>
+          <div class="flex justify-between font-bold text-stone-900 text-sm pt-1 border-t border-stone-200">
+            <span>Grand Total:</span>
+            <span id="modalGrandTotal" class="text-amber-900">Rs 0</span>
+          </div>
+        </div>
+
+        <div class="text-center pt-2 text-[10px] text-stone-400 font-sans">
+          Thank you for visiting! Have a wonderful day ☕
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="p-4 bg-stone-50 border-t border-stone-100 flex gap-2">
+        <button onclick="printOrder()" class="flex-1 py-2 rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-100 font-medium text-xs flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i> Print
+        </button>
+        <button onclick="finalizeNewOrder()" class="flex-1 py-2 rounded-lg bg-amber-800 hover:bg-amber-900 text-white font-semibold text-xs transition">
+          New Order
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Exact menu dataset matching your Python script
+    const MENU_ITEMS = [
+      { id: 'pizza', name: 'Pizza', price: 160, type: 'food', emoji: '🍕', desc: 'Crispy stone-baked with mozzarella & herbs' },
+      { id: 'pasta', name: 'Pasta', price: 100, type: 'food', emoji: '🍝', desc: 'Creamy penne tossed in rich parmesan sauce' },
+      { id: 'burger', name: 'Burger', price: 80, type: 'food', emoji: '🍔', desc: 'Grilled spiced patty with fresh veggies' },
+      { id: 'salad', name: 'Salad', price: 85, type: 'food', emoji: '🥗', desc: 'Garden fresh greens with honey vinaigrette' },
+      { id: 'coffee', name: 'Coffee', price: 55, type: 'beverage', emoji: '☕', desc: 'Freshly brewed aromatic espresso roast' },
+      { id: 'tea', name: 'Tea', price: 45, type: 'beverage', emoji: '🍵', desc: 'Classic spiced masala chai blend' }
+    ];
+
+    // State management
+    let cart = {}; // { 'Pizza': { price: 160, qty: 1, emoji: '🍕' } }
+    let currentFilter = 'all';
+    let searchQuery = '';
+
+    function renderMenu() {
+      const grid = document.getElementById('menuGrid');
+      grid.innerHTML = '';
+
+      const filtered = MENU_ITEMS.filter(item => {
+        const matchesFilter = currentFilter === 'all' || item.type === currentFilter;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesFilter && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-stone-400">
+            <i data-lucide="utensils" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+            <p class="text-sm">No items found matching "${searchQuery}"</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      filtered.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "group relative bg-white border border-stone-200/90 hover:border-amber-700/40 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between";
+        
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between mb-2">
+              <div class="text-3xl p-2 rounded-xl bg-amber-50 group-hover:scale-110 transition-transform">
+                ${item.emoji}
+              </div>
+              <span class="font-mono font-bold text-amber-900 bg-amber-100/60 px-2.5 py-1 rounded-lg text-sm">
+                Rs ${item.price}
+              </span>
+            </div>
+            <h4 class="font-bold text-stone-900 text-base group-hover:text-amber-800 transition-colors">${item.name}</h4>
+            <p class="text-xs text-stone-500 mt-0.5 line-clamp-2">${item.desc}</p>
+          </div>
+          
+          <div class="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
+            <span class="text-[11px] uppercase tracking-wider font-semibold text-stone-400">${item.type}</span>
+            <button 
+              onclick="addToOrder('${item.name}', ${item.price}, '${item.emoji}')"
+              class="px-3.5 py-1.5 rounded-lg bg-stone-900 text-white hover:bg-amber-800 text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition"
+            >
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    function addToOrder(name, price, emoji) {
+      if (cart[name]) {
+        cart[name].qty += 1;
+      } else {
+        cart[name] = { price: price, qty: 1, emoji: emoji };
+      }
+      renderCart();
+      
+      // Visual feedback
+      const count = Object.values(cart).reduce((sum, item) => sum + item.qty, 0);
+      const badge = document.getElementById('mobileBadge');
+      badge.innerText = count;
+      badge.classList.remove('hidden');
+    }
+
+    function updateQty(name, delta) {
+      if (!cart[name]) return;
+      cart[name].qty += delta;
+      if (cart[name].qty <= 0) {
+        delete cart[name];
+      }
+      renderCart();
+    }
+
+    function removeItem(name) {
+      delete cart[name];
+      renderCart();
+    }
+
+    function clearOrder() {
+      if (Object.keys(cart).length === 0) return;
+      cart = {};
+      renderCart();
+    }
+
+    function renderCart() {
+      const container = document.getElementById('cartItemsContainer');
+      const checkoutBtn = document.getElementById('checkoutButton');
+      const itemCountLabel = document.getElementById('itemCountLabel');
+      const keys = Object.keys(cart);
+
+      if (keys.length === 0) {
+        container.innerHTML = `
+          <div class="flex-1 flex flex-col items-center justify-center text-center text-stone-400 py-8">
+            <i data-lucide="coffee" class="w-10 h-10 mb-2 opacity-30 stroke-1"></i>
+            <p class="text-xs font-medium">Your order tray is empty</p>
+            <p class="text-[11px] text-stone-400 mt-0.5">Click "Add" on any cafe item to start</p>
+          </div>
+        `;
+        itemCountLabel.innerText = "0 items selected";
+        document.getElementById('subtotalDisplay').innerText = "Rs 0";
+        document.getElementById('taxDisplay').innerText = "Rs 0";
+        document.getElementById('totalBillDisplay').innerText = "Rs 0";
+        checkoutBtn.disabled = true;
+        document.getElementById('mobileBadge').classList.add('hidden');
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = '';
+      let subtotal = 0;
+      let totalItems = 0;
+
+      keys.forEach(name => {
+        const item = cart[name];
+        const itemTotal = item.price * item.qty;
+        subtotal += itemTotal;
+        totalItems += item.qty;
+
+        const row = document.createElement('div');
+        row.className = "flex items-center justify-between p-2.5 rounded-xl bg-stone-50 border border-stone-200/70 hover:border-amber-200 transition text-xs";
+        row.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-lg">${item.emoji}</span>
+            <div>
+              <div class="font-bold text-stone-800">${name}</div>
+              <div class="text-stone-500 text-[11px]">Rs ${item.price} each</div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="flex items-center border border-stone-300 rounded-lg bg-white overflow-hidden">
+              <button onclick="updateQty('${name}', -1)" class="px-2 py-0.5 hover:bg-stone-100 font-bold text-stone-600 transition">-</button>
+              <span class="px-2 font-mono font-semibold text-stone-800">${item.qty}</span>
+              <button onclick="updateQty('${name}', 1)" class="px-2 py-0.5 hover:bg-stone-100 font-bold text-stone-600 transition">+</button>
+            </div>
+            <div class="font-mono font-bold text-stone-900 w-16 text-right">
+              Rs ${itemTotal}
+            </div>
+            <button onclick="removeItem('${name}')" class="text-stone-400 hover:text-rose-600 p-1 transition" title="Remove">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      const tax = Math.round(subtotal * 0.05);
+      const grandTotal = subtotal + tax;
+
+      itemCountLabel.innerText = `${totalItems} item${totalItems > 1 ? 's' : ''} in tray`;
+      document.getElementById('subtotalDisplay').innerText = `Rs ${subtotal}`;
+      document.getElementById('taxDisplay').innerText = `Rs ${tax}`;
+      document.getElementById('totalBillDisplay').innerText = `Rs ${grandTotal}`;
+      checkoutBtn.disabled = false;
+
+      lucide.createIcons();
+    }
+
+    function openReceiptModal() {
+      const modal = document.getElementById('receiptModal');
+      const list = document.getElementById('receiptItemsList');
+      const customerInput = document.getElementById('customerNameInput');
+      
+      list.innerHTML = '';
+      let subtotal = 0;
+
+      Object.keys(cart).forEach(name => {
+        const item = cart[name];
+        const lineTotal = item.price * item.qty;
+        subtotal += lineTotal;
+
+        const row = document.createElement('div');
+        row.className = "flex justify-between";
+        row.innerHTML = `
+          <span>${item.qty}x ${name}</span>
+          <span>Rs ${lineTotal}</span>
+        `;
+        list.appendChild(row);
+      });
+
+      const tax = Math.round(subtotal * 0.05);
+      const grandTotal = subtotal + tax;
+
+      document.getElementById('receiptDate').innerText = `Date: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+      document.getElementById('receiptCustomer').innerText = customerInput.value.trim() || 'Walk-in Guest';
+      document.getElementById('modalSubtotal').innerText = `Rs ${subtotal}`;
+      document.getElementById('modalTax').innerText = `Rs ${tax}`;
+      document.getElementById('modalGrandTotal').innerText = `Rs ${grandTotal}`;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeReceiptModal() {
+      const modal = document.getElementById('receiptModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function finalizeNewOrder() {
+      closeReceiptModal();
+      clearOrder();
+    }
+
+    function printOrder() {
+      window.print();
+    }
+
+    // Filter by type (food / beverage / all)
+    function filterType(type) {
+      currentFilter = (currentFilter === type) ? 'all' : type;
+      renderMenu();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderMenu();
+      renderCart();
+
+      // Search input handler
+      document.getElementById('searchMenu').addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        renderMenu();
+      });
+
+      // Mobile cart scroll toggle
+      document.getElementById('mobileCartBtn').addEventListener('click', () => {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth'
+        });
+      });
+    });
+  </script>
+</body>
+</html>
