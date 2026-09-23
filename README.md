@@ -35,38 +35,39 @@ cafe/
 ```
 # 🚀 Getting Started
 ## 1. Clone the Repository
-
+```bash
 git clone [https://github.com/knAshvita/cafe-menu-app.git](https://github.com/knAshvita/cafe-menu-app.git)
 cd cafe-menu-app
-
+```
 ## 2. Install Required Dependencies
-
+```bash
 pip install flask openai python-dotenv
-
+```
 ## 3. Setup Environment Variables
 Create a .env file in the root folder:
-
+```bash
 OPENAI_API_KEY=your_actual_api_key_here
 OPENAI_BASE_URL=your_actual_base_url_here
 MODEL_NAME=gemini-2.5-flash
-
+```
 ## 4. Run the Application
-
+```bash
 python hotelmenu.py
-
+```
 ## 5. Open in Browser
-
+```bash
 Visit http://127.0.0.1:5000 to use the app.
-
+```
 ## 📡 API Endpoints
-
+```bash
 | Method | Endpoint | Purpose |
 |--------|----------|---------|
 | `GET` | `/` | Serves the cafe frontend UI |
 | `GET` | `/api/menu` | Retrieves the list of available items and prices |
 | `POST` | `/api/recommend` | Analyzes cart items and returns an AI pairing suggestion |
 | `POST` | `/api/order` | Verifies prices, computes taxes, and generates the final bill |
-
+```
 # 🛡️ Security
-
+```bash
 This project uses a .gitignore file to ensure sensitive .env secrets and Python cache files (__pycache__/) are never uploaded to GitHub.
+```
