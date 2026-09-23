@@ -67,7 +67,8 @@ Visit http://127.0.0.1:5000 to use the app.
 | `GET` | `/api/menu` | Retrieves the list of available items and prices |
 | `POST` | `/api/recommend` | Analyzes cart items and returns an AI pairing suggestion |
 | `POST` | `/api/order` | Verifies prices, computes taxes, and generates the final bill |
+
 # 🛡️ Security
-```bash
+
 This project uses a .gitignore file to ensure sensitive .env secrets and Python cache files (__pycache__/) are never uploaded to GitHub.
-```
+
